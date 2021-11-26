@@ -145,6 +145,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.cic1.valueChanged.connect(self.change_cic)
         self.cic2.valueChanged.connect(self.change_cic)
 
+        # connect additional magnification values
+        self.addmag1.valueChanged.connect(self.change_addmag)
+        self.addmag2.valueChanged.connect(self.change_addmag)
+
     def change_scale(self: QtWidgets.QMainWindow) -> None:
 
         self.MplWidget.canvas.axes.set_xlim(self.xscale_min.value(), self.xscale_max.value())
