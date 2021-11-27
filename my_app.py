@@ -99,6 +99,12 @@ class MainWindow(QtWidgets.QMainWindow):
         # update ui
         self.phf2.setText(str(self.cp2["flux"]))
 
+        # update values for the pixel sizes
+        self.piximage1.setText(str(self.cp1["piximage"]))
+        self.piximage2.setText(str(self.cp2["piximage"]))
+        self.pixrequired1.setText(str(self.cp1["req_pixsize"]))
+        self.pixrequired2.setText(str(self.cp2["req_pixsize"]))
+
         # configure plot
         self.MplWidget.canvas.axes.set_title("Camera SNR Plot")
         self.MplWidget.canvas.axes.set_xlabel("Photons / Pixel / Frame")
@@ -144,6 +150,14 @@ class MainWindow(QtWidgets.QMainWindow):
         # connect the CIC noise values
         self.cic1.valueChanged.connect(self.change_cic)
         self.cic2.valueChanged.connect(self.change_cic)
+
+        # connect objective magnification values
+        self.objmag1.valueChanged.connect(self.change_objmag)
+        self.objmag2.valueChanged.connect(self.change_objmag)
+
+        # connect additional magnification values
+        self.objna1.valueChanged.connect(self.change_objna)
+        self.objna2.valueChanged.connect(self.change_objna)
 
         # connect additional magnification values
         self.addmag1.valueChanged.connect(self.change_addmag)
@@ -211,6 +225,34 @@ class MainWindow(QtWidgets.QMainWindow):
         # update the plot and redraw
         self.update_plot()
 
+    def change_addmag(self: QtWidgets.QMainWindow) -> None:
+
+        # change the readout noise
+        self.mic1.addmag = self.addmag1.value()
+        self.mic2.addmag = self.addmag2.value()
+
+        # update the plot and redraw
+        self.update_plot()
+
+    def change_objmag(self: QtWidgets.QMainWindow) -> None:
+
+        # change the readout noise
+        self.mic1.objmag = self.objmag1.value()
+        self.mic2.objmag = self.objmag2.value()
+
+        # update the plot and redraw
+        self.update_plot()
+
+    def change_objna(self: QtWidgets.QMainWindow) -> None:
+
+        # change the readout noise
+        self.mic1.objna = self.objna1.value()
+        self.mic2.objna = self.objna2.value()
+
+        # update the plot and redraw
+        self.update_plot()
+
+
     def update_plot(self):
 
         # recalculate the values
@@ -230,6 +272,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.indicator1_line.set_ydata(self.cp1["phindy"])
         self.indicator2_line.set_xdata(self.cp2["phindx"])
         self.indicator2_line.set_ydata(self.cp2["phindy"])
+
+        # update values for the pixel sizes
+        #self.piximage1.setText(str(self.cp1["piximage"]))
 
         # update the whole plot
         self.MplWidget.canvas.draw()
