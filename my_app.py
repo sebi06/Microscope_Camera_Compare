@@ -1,3 +1,4 @@
+from __future__ import annotations
 from PyQt5 import QtWidgets, QtGui, uic
 from PyQt5 import QtCore
 #from pyqtgraph import PlotWidget, plot
@@ -5,7 +6,6 @@ from PyQt5 import QtCore
 import sys  # We need sys so that we can pass argv to QApplication
 import os
 import numpy as np
-from __future__ import annotations
 from typing import List, Dict, Tuple, Optional, Type, Any, Union
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -53,7 +53,6 @@ class MainWindow(QtWidgets.QMainWindow):
                                objmag=objmag,
                                objna=objna,
                                addmag=addmag)
-
 
         self.emwl_value = emwl
         self.emwl.setValue(emwl)
@@ -144,6 +143,14 @@ class MainWindow(QtWidgets.QMainWindow):
         self.readnoise1.valueChanged.connect(self.change_readoutnoise)
         self.readnoise2.valueChanged.connect(self.change_readoutnoise)
 
+        # connect camera type values
+        self.type1.currentIndexChanged.connect(self.change_type)
+        self.type2.currentIndexChanged.connect(self.change_type)
+
+        # connect emgain values
+        self.emgain1.valueChanged.connect(self.change_gain)
+        self.emgain2.valueChanged.connect(self.change_gain)
+
         # connect dark current values
         self.dark1.valueChanged.connect(self.change_dark)
         self.dark2.valueChanged.connect(self.change_dark)
@@ -163,6 +170,15 @@ class MainWindow(QtWidgets.QMainWindow):
         # connect additional magnification values
         self.addmag1.valueChanged.connect(self.change_addmag)
         self.addmag2.valueChanged.connect(self.change_addmag)
+
+        # connect sampling value
+        self.nyq.valueChanged.connect(self.change_sampling)
+
+        # connect EM-WL  value
+        self.emwl.valueChanged.connect(self.change_emwl)
+
+
+    # modify plot
 
     def change_scale(self: QtWidgets.QMainWindow) -> None:
 
@@ -237,9 +253,15 @@ class MainWindow(QtWidgets.QMainWindow):
         self.update_plot()
 
     def change_type(self: QtWidgets.QMainWindow) -> None:
-        # change the camera gain
+
+        # change the camera type
         self.cam1.cameratype = self.type1.currentText()
         self.cam2.cameratype = self.type2.currentText()
+
+        self.cam1.adapt_noisefactor()
+        self.cam1.adapt_readout()
+        self.cam2.adapt_noisefactor()
+        self.cam2.adapt_readout()
 
         # update the plot and redraw
         self.update_plot()
@@ -269,6 +291,22 @@ class MainWindow(QtWidgets.QMainWindow):
         # change the readout noise
         self.mic1.objna = self.objna1.value()
         self.mic2.objna = self.objna2.value()
+
+        # update the plot and redraw
+        self.update_plot()
+
+    def change_sampling(self: QtWidgets.QMainWindow) -> None:
+
+        # change the sampling value
+        self.sampling_value = self.nyq.value()
+
+        # update the plot and redraw
+        self.update_plot()
+
+    def change_emwl(self: QtWidgets.QMainWindow) -> None:
+
+        # change the readout noise
+        self.emwl_value = self.emwl.value()
 
         # update the plot and redraw
         self.update_plot()
@@ -319,17 +357,20 @@ class Camera:
         self.cameratype = cameratype
         self.emgain = emgain
         self.readout = readout
+        self.readout_mod = readout
         self.nf = noisefactor
         self.dark = dark
         self.cic = cic
 
-        # calc the noise factore
-        self.calc_noisefactor()
+        # adapt the noise factor and readout noise
+        self.adapt_noisefactor()
+        self.adapt_readout()
 
 
-    def calc_noisefactor(self) -> None:
+    def adapt_noisefactor(self) -> None:
+
         # adjust noise factor due to CCD type
-        if self.cameratype == "NORMAL":
+        if self.cameratype == "CCD":
             # reset noise factor and gain in case of an normal CCD
             self.nf = 1.0
             self.emgain = 1
@@ -338,6 +379,11 @@ class Camera:
         elif self.cameratype == "EM-CCD":
             self.nf = 1.41
 
+    def adapt_readout(self) -> None:
+
+        # adapt the readout noise if camera is an CMOS
+        if self.cameratype == "CMOS":
+            self.readout_mod = np.sqrt(self.binning)
 
 
 class Microscope:
@@ -375,29 +421,34 @@ def calc_values(cam1: type[Camera], cam2: type[Camera], mic1: type[Microscope], 
     cp2["corrf_pixarea"] = float(np.round((cp2["piximage"] **2) / (cp1["piximage"] **2), 2))
 
     # adapt the readout noise if camera is an CMOS
-    if cam1.cameratype == "CMOS":
-        cp1["readout_mod"] = np.sqrt(cam1.binning)
-    else:
-        cp1["readout_mod"] = cam1.readout
-    if cam2.cameratype == "CMOS":
-        cp2["readout_mod"] = np.sqrt(cam2.binning)
-    else:
-        cp2["readout_mod"] = cam2.readout
+    #if cam1.cameratype == "CMOS":
+    #    cp1["readout_mod"] = np.sqrt(cam1.binning)
+    #else:
+    #    cp1["readout_mod"] = cam1.readout
+    #if cam2.cameratype == "CMOS":
+    #    cp2["readout_mod"] = np.sqrt(cam2.binning)
+    #else:
+    #    cp2["readout_mod"] = cam2.readout
 
     # create ph vector containing the number of detected photons and use for both cameras
     cp1["phf"] = np.arange(0, 400, 1, dtype=np.int16)
     #cp2["phf"] = np.arange(0, 400, 1, dtype=np.int16)
 
     # calculation of SNR including CIC - Clock Induced Charge
-    cp1["snr"] = (cam1.qe * cp1["phf"] / np.sqrt(cam1.nf**2 * (cam1.qe * cp1["phf"] + cam1.dark**2 + cam1.cic**2) + (cp1["readout_mod"]**2 / cam1.emgain**2))).astype(float)
-    cp2["snr"] = (cam2.qe * cp1["phf"] / np.sqrt(cam2.nf**2 * (cam2.qe * cp1["phf"] + cam2.dark**2 + cam2.cic**2) + (cp2["readout_mod"]**2 / cam2.emgain**2))).astype(float)
+    #cp1["snr"] = (cam1.qe * cp1["phf"] / np.sqrt(cam1.nf**2 * (cam1.qe * cp1["phf"] + cam1.dark**2 + cam1.cic**2) + (cp1["readout_mod"]**2 / cam1.emgain**2))).astype(float)
+    #cp2["snr"] = (cam2.qe * cp1["phf"] / np.sqrt(cam2.nf**2 * (cam2.qe * cp1["phf"] + cam2.dark**2 + cam2.cic**2) + (cp2["readout_mod"]**2 / cam2.emgain**2))).astype(float)
+
+    cp1["snr"] = (cam1.qe * cp1["phf"] / np.sqrt(cam1.nf**2 * (cam1.qe * cp1["phf"] + cam1.dark**2 + cam1.cic**2) + (cam1.readout_mod**2 / cam1.emgain**2))).astype(float)
+    cp2["snr"] = (cam2.qe * cp1["phf"] / np.sqrt(cam2.nf**2 * (cam2.qe * cp1["phf"] + cam2.dark**2 + cam2.cic**2) + (cam1.readout_mod**2 / cam2.emgain**2))).astype(float)
 
     # calculate values for photon indicators
     cp2["flux"] = (np.round(cp1["flux"] * cp2["corrf_pixarea"], 0)).astype(int)
 
     #  calculate explicit SNR values
-    cp1["snr_value"] = ((cam1.qe * cp1["flux"]) / np.sqrt(cam1.nf**2 * (cam1.qe * cp1["flux"] + cam1.dark**2 + cam1.cic**2) + (cp1["readout_mod"]**2 / cam1.emgain**2))).astype(float)
-    cp2["snr_value"] = ((cam2.qe * cp2["flux"]) / np.sqrt(cam2.nf**2 * (cam2.qe * cp2["flux"] + cam2.dark**2 + cam2.cic**2) + (cp2["readout_mod"]**2 / cam2.emgain**2))).astype(float)
+    #cp1["snr_value"] = ((cam1.qe * cp1["flux"]) / np.sqrt(cam1.nf**2 * (cam1.qe * cp1["flux"] + cam1.dark**2 + cam1.cic**2) + (cp1["readout_mod"]**2 / cam1.emgain**2))).astype(float)
+    #cp2["snr_value"] = ((cam2.qe * cp2["flux"]) / np.sqrt(cam2.nf**2 * (cam2.qe * cp2["flux"] + cam2.dark**2 + cam2.cic**2) + (cp2["readout_mod"]**2 / cam2.emgain**2))).astype(float)
+    cp1["snr_value"] = ((cam1.qe * cp1["flux"]) / np.sqrt(cam1.nf**2 * (cam1.qe * cp1["flux"] + cam1.dark**2 + cam1.cic**2) + (cam1.readout_mod**2 / cam1.emgain**2))).astype(float)
+    cp2["snr_value"] = ((cam2.qe * cp2["flux"]) / np.sqrt(cam2.nf**2 * (cam2.qe * cp2["flux"] + cam2.dark**2 + cam2.cic**2) + (cam2.readout_mod**2 / cam2.emgain**2))).astype(float)
 
     cp1["phindx"] = np.array([cp1["flux"], cp1["flux"], 0])
     cp1["phindy"] = np.array([0, cp1["snr_value"], cp1["snr_value"]])
