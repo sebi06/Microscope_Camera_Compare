@@ -5,6 +5,7 @@ from PyQt5 import QtCore
 import sys  # We need sys so that we can pass argv to QApplication
 import os
 import numpy as np
+from __future__ import annotations
 from typing import List, Dict, Tuple, Optional, Type, Any, Union
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -171,6 +172,8 @@ class MainWindow(QtWidgets.QMainWindow):
         # update the plot
         self.MplWidget.canvas.draw()
 
+    # change camera parameters
+
     def change_binning(self: QtWidgets.QMainWindow) -> None:
 
         # change binning values
@@ -225,6 +228,24 @@ class MainWindow(QtWidgets.QMainWindow):
         # update the plot and redraw
         self.update_plot()
 
+    def change_gain(self: QtWidgets.QMainWindow) -> None:
+        # change the camera gain
+        self.cam1.emgain = self.emgain1.value()
+        self.cam2.emgain = self.emgain2.value()
+
+        # update the plot and redraw
+        self.update_plot()
+
+    def change_type(self: QtWidgets.QMainWindow) -> None:
+        # change the camera gain
+        self.cam1.cameratype = self.type1.currentText()
+        self.cam2.cameratype = self.type2.currentText()
+
+        # update the plot and redraw
+        self.update_plot()
+
+    # change optics
+
     def change_addmag(self: QtWidgets.QMainWindow) -> None:
 
         # change the readout noise
@@ -251,7 +272,6 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # update the plot and redraw
         self.update_plot()
-
 
     def update_plot(self):
 
@@ -303,10 +323,15 @@ class Camera:
         self.dark = dark
         self.cic = cic
 
+        # calc the noise factore
+        self.calc_noisefactor()
+
+
+    def calc_noisefactor(self) -> None:
         # adjust noise factor due to CCD type
         if self.cameratype == "NORMAL":
             # reset noisefactor and gain in case of an normal CCD
-            self.nf = 1
+            self.nf = 1.0
             self.emgain = 1
             self.cic = 0.0
 
@@ -328,7 +353,7 @@ class Microscope:
 
 
 
-def calc_values(cam1: Camera, cam2: Camera, mic1: Microscope, mic2: Microscope,
+def calc_values(cam1: type[Camera], cam2: type[Camera], mic1: type[Microscope], mic2: type[Microscope],
                 emwl: int = 520,
                 phf: int = 50,
                 sampling: float = 2.0) -> Tuple[Dict, Dict]:
