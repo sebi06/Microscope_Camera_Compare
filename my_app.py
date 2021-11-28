@@ -330,7 +330,7 @@ class Camera:
     def calc_noisefactor(self) -> None:
         # adjust noise factor due to CCD type
         if self.cameratype == "NORMAL":
-            # reset noisefactor and gain in case of an normal CCD
+            # reset noise factor and gain in case of an normal CCD
             self.nf = 1.0
             self.emgain = 1
             self.cic = 0.0
