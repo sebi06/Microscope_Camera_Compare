@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1744</width>
-    <height>734</height>
+    <width>1800</width>
+    <height>750</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -202,6 +202,11 @@
      </item>
      <item row="1" column="1">
       <widget class="QLineEdit" name="name1">
+       <property name="font">
+        <font>
+         <pointsize>12</pointsize>
+        </font>
+       </property>
        <property name="text">
         <string>Camera 1</string>
        </property>
@@ -209,6 +214,11 @@
      </item>
      <item row="1" column="2">
       <widget class="QLineEdit" name="name2">
+       <property name="font">
+        <font>
+         <pointsize>12</pointsize>
+        </font>
+       </property>
        <property name="text">
         <string>Camera 2</string>
        </property>
@@ -345,6 +355,11 @@
      </item>
      <item row="4" column="1">
       <widget class="QComboBox" name="bin1">
+       <property name="font">
+        <font>
+         <pointsize>12</pointsize>
+        </font>
+       </property>
        <property name="layoutDirection">
         <enum>Qt::LeftToRight</enum>
        </property>
@@ -372,6 +387,11 @@
      </item>
      <item row="4" column="2">
       <widget class="QComboBox" name="bin2">
+       <property name="font">
+        <font>
+         <pointsize>12</pointsize>
+        </font>
+       </property>
        <item>
         <property name="text">
          <string>1</string>
@@ -411,6 +431,11 @@
      </item>
      <item row="5" column="1">
       <widget class="QComboBox" name="type1">
+       <property name="font">
+        <font>
+         <pointsize>12</pointsize>
+        </font>
+       </property>
        <item>
         <property name="text">
          <string>CCD</string>
@@ -430,6 +455,11 @@
      </item>
      <item row="5" column="2">
       <widget class="QComboBox" name="type2">
+       <property name="font">
+        <font>
+         <pointsize>12</pointsize>
+        </font>
+       </property>
        <item>
         <property name="text">
          <string>CCD</string>
@@ -671,13 +701,13 @@
      </item>
     </layout>
    </widget>
-   <widget class="QWidget" name="layoutWidget">
+   <widget class="QWidget" name="">
     <property name="geometry">
      <rect>
-      <x>1250</x>
-      <y>10</y>
-      <width>396</width>
-      <height>621</height>
+      <x>1280</x>
+      <y>11</y>
+      <width>412</width>
+      <height>664</height>
      </rect>
     </property>
     <layout class="QGridLayout" name="gridLayout_2" columnstretch="4,2,2">
@@ -688,7 +718,7 @@
       <number>8</number>
      </property>
      <property name="verticalSpacing">
-      <number>32</number>
+      <number>16</number>
      </property>
      <item row="0" column="1">
       <widget class="QLabel" name="label_camera1R">
@@ -718,7 +748,7 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="0">
+     <item row="2" column="0">
       <widget class="QLabel" name="label_ph">
        <property name="font">
         <font>
@@ -733,7 +763,19 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="2">
+     <item row="2" column="1">
+      <widget class="QSpinBox" name="phf1">
+       <property name="font">
+        <font>
+         <pointsize>12</pointsize>
+        </font>
+       </property>
+       <property name="value">
+        <number>50</number>
+       </property>
+      </widget>
+     </item>
+     <item row="2" column="2">
       <widget class="QLineEdit" name="phf2">
        <property name="enabled">
         <bool>false</bool>
@@ -743,9 +785,15 @@
          <pointsize>12</pointsize>
         </font>
        </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
       </widget>
      </item>
-     <item row="2" column="0">
+     <item row="3" column="0">
       <widget class="QLabel" name="label_addmag">
        <property name="font">
         <font>
@@ -760,7 +808,7 @@
        </property>
       </widget>
      </item>
-     <item row="2" column="1">
+     <item row="3" column="1">
       <widget class="QDoubleSpinBox" name="addmag1">
        <property name="font">
         <font>
@@ -781,7 +829,7 @@
        </property>
       </widget>
      </item>
-     <item row="2" column="2">
+     <item row="3" column="2">
       <widget class="QDoubleSpinBox" name="addmag2">
        <property name="font">
         <font>
@@ -802,7 +850,7 @@
        </property>
       </widget>
      </item>
-     <item row="3" column="0">
+     <item row="5" column="0">
       <widget class="QLabel" name="label_noisef">
        <property name="font">
         <font>
@@ -817,7 +865,7 @@
        </property>
       </widget>
      </item>
-     <item row="3" column="1">
+     <item row="5" column="1">
       <widget class="QLineEdit" name="noisef1">
        <property name="enabled">
         <bool>false</bool>
@@ -830,12 +878,15 @@
        <property name="text">
         <string>123</string>
        </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
        <property name="readOnly">
         <bool>true</bool>
        </property>
       </widget>
      </item>
-     <item row="3" column="2">
+     <item row="5" column="2">
       <widget class="QLineEdit" name="noisef2">
        <property name="enabled">
         <bool>false</bool>
@@ -845,9 +896,12 @@
          <pointsize>12</pointsize>
         </font>
        </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
       </widget>
      </item>
-     <item row="4" column="0">
+     <item row="6" column="0">
       <widget class="QLabel" name="label_sizef">
        <property name="font">
         <font>
@@ -862,7 +916,7 @@
        </property>
       </widget>
      </item>
-     <item row="4" column="1">
+     <item row="6" column="1">
       <widget class="QLineEdit" name="sizef1">
        <property name="enabled">
         <bool>false</bool>
@@ -872,9 +926,15 @@
          <pointsize>12</pointsize>
         </font>
        </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
       </widget>
      </item>
-     <item row="4" column="2">
+     <item row="6" column="2">
       <widget class="QLineEdit" name="sizef2">
        <property name="enabled">
         <bool>false</bool>
@@ -884,9 +944,30 @@
          <pointsize>12</pointsize>
         </font>
        </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
       </widget>
      </item>
-     <item row="5" column="0">
+     <item row="7" column="1" colspan="2">
+      <widget class="QLabel" name="label_sampling">
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Sampling and Resolution</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="8" column="0">
       <widget class="QLabel" name="label_nyq">
        <property name="font">
         <font>
@@ -901,7 +982,7 @@
        </property>
       </widget>
      </item>
-     <item row="6" column="0">
+     <item row="9" column="0">
       <widget class="QLabel" name="label_emwl">
        <property name="font">
         <font>
@@ -909,14 +990,14 @@
         </font>
        </property>
        <property name="text">
-        <string>Em-WL [nm]</string>
+        <string>Emission-WL [nm]</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
        </property>
       </widget>
      </item>
-     <item row="7" column="0">
+     <item row="10" column="0">
       <widget class="QLabel" name="label_objmag">
        <property name="font">
         <font>
@@ -931,7 +1012,7 @@
        </property>
       </widget>
      </item>
-     <item row="7" column="1">
+     <item row="10" column="1">
       <widget class="QDoubleSpinBox" name="objmag1">
        <property name="font">
         <font>
@@ -952,7 +1033,7 @@
        </property>
       </widget>
      </item>
-     <item row="7" column="2">
+     <item row="10" column="2">
       <widget class="QDoubleSpinBox" name="objmag2">
        <property name="font">
         <font>
@@ -973,7 +1054,7 @@
        </property>
       </widget>
      </item>
-     <item row="8" column="0">
+     <item row="11" column="0">
       <widget class="QLabel" name="label_objna">
        <property name="font">
         <font>
@@ -988,7 +1069,7 @@
        </property>
       </widget>
      </item>
-     <item row="8" column="1">
+     <item row="11" column="1">
       <widget class="QDoubleSpinBox" name="objna1">
        <property name="font">
         <font>
@@ -1009,7 +1090,7 @@
        </property>
       </widget>
      </item>
-     <item row="8" column="2">
+     <item row="11" column="2">
       <widget class="QDoubleSpinBox" name="objna2">
        <property name="font">
         <font>
@@ -1030,7 +1111,7 @@
        </property>
       </widget>
      </item>
-     <item row="9" column="0">
+     <item row="12" column="0">
       <widget class="QLabel" name="label_piximage">
        <property name="font">
         <font>
@@ -1045,25 +1126,41 @@
        </property>
       </widget>
      </item>
-     <item row="9" column="1">
+     <item row="12" column="1">
       <widget class="QLineEdit" name="piximage1">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="font">
         <font>
          <pointsize>12</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
         </font>
+       </property>
+       <property name="readOnly">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
-     <item row="9" column="2">
+     <item row="12" column="2">
       <widget class="QLineEdit" name="piximage2">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="font">
         <font>
          <pointsize>12</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
         </font>
+       </property>
+       <property name="readOnly">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
-     <item row="10" column="0">
+     <item row="13" column="0">
       <widget class="QLabel" name="label_pixrequired">
        <property name="font">
         <font>
@@ -1078,25 +1175,41 @@
        </property>
       </widget>
      </item>
-     <item row="10" column="1">
+     <item row="13" column="1">
       <widget class="QLineEdit" name="pixrequired1">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="font">
         <font>
          <pointsize>12</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
         </font>
+       </property>
+       <property name="readOnly">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
-     <item row="10" column="2">
+     <item row="13" column="2">
       <widget class="QLineEdit" name="pixrequired2">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="font">
         <font>
          <pointsize>12</pointsize>
+         <weight>75</weight>
+         <bold>true</bold>
         </font>
+       </property>
+       <property name="readOnly">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
-     <item row="5" column="1" colspan="2">
+     <item row="8" column="1" colspan="2">
       <widget class="QDoubleSpinBox" name="nyq">
        <property name="font">
         <font>
@@ -1123,7 +1236,7 @@
        </property>
       </widget>
      </item>
-     <item row="6" column="1" colspan="2">
+     <item row="9" column="1" colspan="2">
       <widget class="QSpinBox" name="emwl">
        <property name="font">
         <font>
@@ -1144,15 +1257,33 @@
        </property>
       </widget>
      </item>
-     <item row="1" column="1">
-      <widget class="QSpinBox" name="phf1">
+     <item row="1" column="1" colspan="2">
+      <widget class="QLabel" name="label_phcompare">
        <property name="font">
         <font>
-         <pointsize>12</pointsize>
+         <pointsize>10</pointsize>
         </font>
        </property>
-       <property name="value">
-        <number>50</number>
+       <property name="text">
+        <string>Photon Compare</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
+       </property>
+      </widget>
+     </item>
+     <item row="4" column="1" colspan="2">
+      <widget class="QLabel" name="label_calcparam">
+       <property name="font">
+        <font>
+         <pointsize>10</pointsize>
+        </font>
+       </property>
+       <property name="text">
+        <string>Calculated Parameters</string>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignCenter</set>
        </property>
       </widget>
      </item>

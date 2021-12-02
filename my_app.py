@@ -16,6 +16,7 @@ class MainWindow(QtWidgets.QMainWindow):
         # Load the UI Page
         uic.loadUi('mainwindow.ui', self)
 
+        # on eway to modify the color
         palr = self.label_camera1L.palette()
         palg = self.label_camera1R.palette()
         palr.setColor(QtGui.QPalette.WindowText, QtGui.QColor("red"))
@@ -24,6 +25,18 @@ class MainWindow(QtWidgets.QMainWindow):
         self.label_camera1R.setPalette(palr)
         self.label_camera2L.setPalette(palg)
         self.label_camera2R.setPalette(palg)
+
+        # another way to modify the color
+        self.name1.setStyleSheet("""QLineEdit {color: green }""")
+        self.name2.setStyleSheet("""QLineEdit {color: red }""")
+        self.phf1.setStyleSheet("""QSpinBox {color: green }""")
+        self.phf2.setStyleSheet("""QLineEdit {color: red }""")
+        self.addmag1.setStyleSheet("""QDoubleSpinBox {color: green }""")
+        self.addmag2.setStyleSheet("""QDoubleSpinBox {color: red }""")
+        self.objmag1.setStyleSheet("""QDoubleSpinBox {color: green }""")
+        self.objmag2.setStyleSheet("""QDoubleSpinBox {color: red }""")
+        self.objna1.setStyleSheet("""QDoubleSpinBox {color: green }""")
+        self.objna2.setStyleSheet("""QDoubleSpinBox {color: red }""")
 
         # define default values for objectives and update ui elements
         objmag = 20
@@ -61,32 +74,76 @@ class MainWindow(QtWidgets.QMainWindow):
         self.sampling_value = sampling
         self.nyq.setValue(sampling)
 
-        # initialize tow cameras with default values
-        self.cam1 = Camera(name="CAM1",
-                           qe=0.75,
-                           pixsize=4.54,
-                           binning=1,
-                           cameratype="CCD",
-                           emgain=1,
-                           readout=6.0,
-                           dark=0.005,
-                           cic=0.0)
+        # define camera types
+        camera_types = ["CCD", "EM-CCD", "CMOS"]
 
-        self.cam2 = Camera(name="CAM2",
-                           qe=0.65,
-                           pixsize=6.45,
-                           binning=1,
-                           cameratype="CCD",
-                           emgain=1,
-                           readout=7.0,
-                           dark=0.005,
-                           cic=0.0)
+        # define defaults for camera 1
+        name1 = "506 mono"
+        type1 = "CCD"
+        gain1 = 1
+        bin1 = 2
+        qe1 = 0.74
+        pixsize1 = 4.54
+        readout1 = 6.5
+        dark1 = 0.06
+        cic1 = 0.0
+
+        # define defaults for camera 2
+        name2 = "888 Ultra"
+        type2 = "EM-CCD"
+        gain2 = 100
+        bin2 = 1
+        qe2 = 0.95
+        pixsize2 = 13.0
+        readout2 = 130
+        dark2 = 0.00025
+        cic2 = 0.005
+
+
+        # initialize tow cameras with default values
+        self.cam1 = Camera(name=name1,
+                           qe=qe1,
+                           pixsize=pixsize1,
+                           binning=bin1,
+                           cameratype=type1,
+                           emgain=gain1,
+                           readout=readout1,
+                           dark=dark1,
+                           cic=cic1)
+
+        self.name1.setText(name1)
+        self.qe1.setValue(qe1)
+        self.type1.setCurrentIndex(camera_types.index(type1))
+        self.bin1.setCurrentIndex(bin1 - 1)
+        self.pixsize1.setValue(pixsize1)
+        self.readnoise1.setValue(readout1)
+        self.emgain1.setValue(gain1)
+        self.dark1.setValue(dark1)
+        self.cic1.setValue(cic1)
+
+        self.cam2 = Camera(name=name2,
+                           qe=qe2,
+                           pixsize=pixsize2,
+                           binning=bin2,
+                           cameratype=type2,
+                           emgain=gain2,
+                           readout=readout2,
+                           dark=dark2,
+                           cic=cic2)
+
+        self.name2.setText(name2)
+        self.qe2.setValue(qe2)
+        self.type2.setCurrentIndex(camera_types.index(type2))
+        self.bin2.setCurrentIndex(bin2 - 1)
+        self.pixsize2.setValue(pixsize2)
+        self.readnoise2.setValue(readout2)
+        self.emgain2.setValue(gain2)
+        self.dark2.setValue(dark2)
+        self.cic2.setValue(cic2)
 
         # adapt the noise factor and readout noise
         self.cam1 = adapt_noise_readout(self.cam1)
         self.cam2 = adapt_noise_readout(self.cam2)
-
-        # update the noise and size factors
         self.noisef1.setText(str(self.cam1.nf))
         self.noisef2.setText(str(self.cam2.nf))
 
@@ -113,17 +170,20 @@ class MainWindow(QtWidgets.QMainWindow):
         self.MplWidget.canvas.axes.set_title("Camera SNR Plot")
         self.MplWidget.canvas.axes.set_xlabel("Photons / Pixel / Frame")
         self.MplWidget.canvas.axes.set_ylabel("SNR Ratio")
-        self.MplWidget.canvas.axes.grid(True)
+        self.MplWidget.canvas.axes.grid(True, linestyle="--")
         self.MplWidget.canvas.axes.set_xlim(0, 200)
         self.MplWidget.canvas.axes.set_ylim(0, 10)
 
         # plot SNR curves (returns a tuple of line objects, thus the comma)
-        self.snr1_curve, = self.MplWidget.canvas.axes.plot(self.cp1["phf"], self.cp1["snr"], "r-", lw=3)
-        self.snr2_curve, = self.MplWidget.canvas.axes.plot(self.cp1["phf"], self.cp2["snr"], "g-", lw=3)
+        self.snr1_curve, = self.MplWidget.canvas.axes.plot(self.cp1["phf"], self.cp1["snr"], "r-", lw=4, label="SNR 1")
+        self.snr2_curve, = self.MplWidget.canvas.axes.plot(self.cp1["phf"], self.cp2["snr"], "g-", lw=4, label="SNR 2")
 
         # plot indicator lines (returns a tuple of line objects, thus the comma)
-        self.indicator1_line, = self.MplWidget.canvas.axes.plot(self.cp1["phindx"], self.cp1["phindy"], "r-.", lw=2)
-        self.indicator2_line, = self.MplWidget.canvas.axes.plot(self.cp2["phindx"], self.cp2["phindy"], "g-.", lw=2)
+        self.indicator1_line, = self.MplWidget.canvas.axes.plot(self.cp1["phindx"], self.cp1["phindy"], "r--", lw=3, label="PH 1")
+        self.indicator2_line, = self.MplWidget.canvas.axes.plot(self.cp2["phindx"], self.cp2["phindy"], "g--", lw=3, label="PH 2")
+        self.MplWidget.canvas.axes.legend()
+
+        self.update_plot()
 
         # connect scaling values for the plot
         self.xscale_min.valueChanged.connect(self.change_scale)
@@ -180,6 +240,9 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # connect EM-WL  value
         self.emwl.valueChanged.connect(self.change_emwl)
+
+        # connect photon flux  value
+        self.phf1.valueChanged.connect(self.change_flux)
 
 
     # modify plot
@@ -274,6 +337,12 @@ class MainWindow(QtWidgets.QMainWindow):
         self.cam1.cameratype = self.type1.currentText()
         self.cam2.cameratype = self.type2.currentText()
 
+        if self.cam1.cameratype == "CCD" or self.cam1.cameratype == "CMOS":
+            self.emgain1.setValue(1)
+        if self.cam2.cameratype == "CCD" or self.cam2.cameratype == "CMOS":
+            self.emgain2.setValue(1)
+
+
         # adapt the noise factor and readout noise
         self.cam1 = adapt_noise_readout(self.cam1)
         self.cam2 = adapt_noise_readout(self.cam2)
@@ -328,6 +397,16 @@ class MainWindow(QtWidgets.QMainWindow):
         # update the plot and redraw
         self.update_plot()
 
+    # change the photon flux
+
+    def change_flux(self: QtWidgets.QMainWindow) -> None:
+
+            # change the readout noise
+            self.phf1_value = self.phf1.value()
+
+            # update the plot and redraw
+            self.update_plot()
+
 
     # update the plot and UI
 
@@ -351,14 +430,28 @@ class MainWindow(QtWidgets.QMainWindow):
         self.indicator2_line.set_xdata(self.cp2["phindx"])
         self.indicator2_line.set_ydata(self.cp2["phindy"])
 
-        # update the size factors
+        # update the size factors and photon flux
         self.sizef2.setText(str(self.cp2["corrf_pixarea"]))
+        self.phf2.setText(str(self.cp2["flux"]))
 
         # update pixel sizes
         self.piximage1.setText(str(self.cp1["piximage"]))
         self.piximage2.setText(str(self.cp2["piximage"]))
         self.pixrequired1.setText(str(self.cp1["req_pixsize"]))
         self.pixrequired2.setText(str(self.cp2["req_pixsize"]))
+
+        # setting background color to the line edit widget
+        if self.cp1["piximage"] > self.cp1["req_pixsize"]:
+            self.piximage1.setStyleSheet("""QLineEdit { background-color: orange;}""")
+        else:
+            self.piximage1.setStyleSheet("""QLineEdit { background-color: lightgreen;}""")
+
+        if self.cp2["piximage"] > self.cp2["req_pixsize"]:
+            self.piximage2.setStyleSheet("""QLineEdit { background-color: orange;}""")
+        else:
+            self.piximage2.setStyleSheet("""QLineEdit { background-color: lightgreen;}""")
+
+
 
         # update the whole plot
         self.MplWidget.canvas.draw()
@@ -376,6 +469,8 @@ class Camera:
                  noisefactor: float = 1.0,
                  dark: float = 0.005,
                  cic: float = 0.0) -> None:
+
+        # allowed types are: "CCD" or "CMOS" or "EM-CCD"
 
         self.qe = qe
         self.pixsize = pixsize
