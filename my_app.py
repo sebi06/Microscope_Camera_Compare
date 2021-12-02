@@ -83,16 +83,12 @@ class MainWindow(QtWidgets.QMainWindow):
                            cic=0.0)
 
         # adapt the noise factor and readout noise
-        self.cam1 = adapt_readout(self.cam1)
-        self.cam1 = adapt_noisefactor(self.cam1)
-        self.cam2 = adapt_readout(self.cam2)
-        self.cam2 = adapt_noisefactor(self.cam2)
+        self.cam1 = adapt_noise_readout(self.cam1)
+        self.cam2 = adapt_noise_readout(self.cam2)
 
         # update the noise and size factors
         self.noisef1.setText(str(self.cam1.nf))
         self.noisef2.setText(str(self.cam2.nf))
-        self.sizef1.setText(str(self.cam1.nf))
-        self.sizef2.setText(str(self.cam2.nf))
 
         # calculate the values for both cameras
         self.cp1, self.cp2 = calc_values(self.cam1, self.cam2, self.mic1, self.mic2,
@@ -104,6 +100,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # update ui
         self.phf2.setText(str(self.cp2["flux"]))
+        self.sizef1.setText("1.00")
+        self.sizef2.setText(str(self.cp2["corrf_pixarea"]))
 
         # update values for the pixel sizes
         self.piximage1.setText(str(self.cp1["piximage"]))
@@ -202,6 +200,12 @@ class MainWindow(QtWidgets.QMainWindow):
         self.cam1.binning = self.bin1.currentIndex() + 1
         self.cam2.binning = self.bin2.currentIndex() + 1
 
+        # adapt the noise factor and readout noise
+        self.cam1 = adapt_noise_readout(self.cam1)
+        self.cam2 = adapt_noise_readout(self.cam2)
+        self.noisef1.setText(str(self.cam1.nf))
+        self.noisef2.setText(str(self.cam2.nf))
+
         # update the plot and redraw
         self.update_plot()
 
@@ -228,6 +232,12 @@ class MainWindow(QtWidgets.QMainWindow):
         # change the readout noise
         self.cam1.readout = self.readnoise1.value()
         self.cam2.readout = self.readnoise2.value()
+
+        # adapt the noise factor and readout noise
+        self.cam1 = adapt_noise_readout(self.cam1)
+        self.cam2 = adapt_noise_readout(self.cam2)
+        self.noisef1.setText(str(self.cam1.nf))
+        self.noisef2.setText(str(self.cam2.nf))
 
         # update the plot and redraw
         self.update_plot()
@@ -264,10 +274,11 @@ class MainWindow(QtWidgets.QMainWindow):
         self.cam1.cameratype = self.type1.currentText()
         self.cam2.cameratype = self.type2.currentText()
 
-        self.cam1.adapt_noisefactor()
-        self.cam1.adapt_readout()
-        self.cam2.adapt_noisefactor()
-        self.cam2.adapt_readout()
+        # adapt the noise factor and readout noise
+        self.cam1 = adapt_noise_readout(self.cam1)
+        self.cam2 = adapt_noise_readout(self.cam2)
+        self.noisef1.setText(str(self.cam1.nf))
+        self.noisef2.setText(str(self.cam2.nf))
 
         # update the plot and redraw
         self.update_plot()
@@ -318,7 +329,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.update_plot()
 
 
-    # update the plot
+    # update the plot and UI
 
     def update_plot(self):
 
@@ -340,8 +351,14 @@ class MainWindow(QtWidgets.QMainWindow):
         self.indicator2_line.set_xdata(self.cp2["phindx"])
         self.indicator2_line.set_ydata(self.cp2["phindy"])
 
-        # update values for the pixel sizes
-        #self.piximage1.setText(str(self.cp1["piximage"]))
+        # update the size factors
+        self.sizef2.setText(str(self.cp2["corrf_pixarea"]))
+
+        # update pixel sizes
+        self.piximage1.setText(str(self.cp1["piximage"]))
+        self.piximage2.setText(str(self.cp2["piximage"]))
+        self.pixrequired1.setText(str(self.cp1["req_pixsize"]))
+        self.pixrequired2.setText(str(self.cp2["req_pixsize"]))
 
         # update the whole plot
         self.MplWidget.canvas.draw()
@@ -394,8 +411,8 @@ def calc_values(cam1: type[Camera], cam2: type[Camera], mic1: type[Microscope], 
     cp1["flux"] = phf
 
     # pixel size in image plane incl. binning
-    cp1["piximage"] = cam1.pixsize * cam1.binning / (mic1.objmag * mic1.addmag)
-    cp2["piximage"] = cam2.pixsize * cam2.binning / (mic2.objmag * mic2.addmag)
+    cp1["piximage"] = float(np.round(cam1.pixsize * cam1.binning / (mic1.objmag * mic1.addmag), 3))
+    cp2["piximage"] = float(np.round(cam2.pixsize * cam2.binning / (mic2.objmag * mic2.addmag), 3))
 
     # required pixel since in image to fulfil Nyquist
     cp1["req_pixsize"] = float(np.round(0.61 * (emwl / 1000) / (sampling * mic1.objna), 3))
@@ -416,7 +433,7 @@ def calc_values(cam1: type[Camera], cam2: type[Camera], mic1: type[Microscope], 
     #    cp2["readout_mod"] = cam2.readout
 
     # create ph vector containing the number of detected photons and use for both cameras
-    cp1["phf"] = np.arange(0, 400, 1, dtype=np.int16)
+    cp1["phf"] = np.arange(0, 300, 1, dtype=np.int16)
     #cp2["phf"] = np.arange(0, 400, 1, dtype=np.int16)
 
     # calculation of SNR including CIC - Clock Induced Charge
@@ -444,24 +461,22 @@ def calc_values(cam1: type[Camera], cam2: type[Camera], mic1: type[Microscope], 
     return cp1, cp2
 
 
-def adapt_noisefactor(cam: Camera) -> Camera:
+def adapt_noise_readout(cam: Camera) -> Camera:
     # adjust noise factor due to CCD type
     if cam.cameratype == "CCD":
         # reset noise factor and gain in case of an normal CCD
         cam.nf = 1.0
         cam.emgain = 1
         cam.cic = 0.0
+        cam.readout_mod = cam.readout
 
-    elif cameratype == "EM-CCD":
+    elif cam.cameratype == "EM-CCD":
         cam.nf = 1.41
+        cam.readout_mod = cam.readout
 
-    return cam
-
-
-def adapt_readout(cam: Camera) -> Camera:
     # adapt the readout noise if camera is an CMOS
     if cam.cameratype == "CMOS":
-        cam.readout_mod = np.sqrt(cam.binning)
+        cam.readout_mod = cam.readout * np.sqrt(cam.binning)
 
     return cam
 

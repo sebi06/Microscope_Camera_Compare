@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1750</width>
-    <height>750</height>
+    <width>1744</width>
+    <height>734</height>
    </rect>
   </property>
   <property name="minimumSize">
@@ -62,6 +62,11 @@
        <height>22</height>
       </rect>
      </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
      <property name="maximum">
       <number>1000</number>
      </property>
@@ -75,6 +80,11 @@
        <height>22</height>
       </rect>
      </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
      <property name="maximum">
       <number>50</number>
      </property>
@@ -87,6 +97,11 @@
        <width>51</width>
        <height>22</height>
       </rect>
+     </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
      </property>
      <property name="minimum">
       <number>1</number>
@@ -107,11 +122,16 @@
        <height>22</height>
       </rect>
      </property>
+     <property name="font">
+      <font>
+       <pointsize>10</pointsize>
+      </font>
+     </property>
      <property name="minimum">
       <number>1</number>
      </property>
      <property name="maximum">
-      <number>1000</number>
+      <number>300</number>
      </property>
      <property name="value">
       <number>200</number>
@@ -716,18 +736,12 @@
      <item row="1" column="2">
       <widget class="QLineEdit" name="phf2">
        <property name="enabled">
-        <bool>true</bool>
+        <bool>false</bool>
        </property>
        <property name="font">
         <font>
          <pointsize>12</pointsize>
         </font>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-       <property name="readOnly">
-        <bool>true</bool>
        </property>
       </widget>
      </item>
@@ -806,7 +820,7 @@
      <item row="3" column="1">
       <widget class="QLineEdit" name="noisef1">
        <property name="enabled">
-        <bool>true</bool>
+        <bool>false</bool>
        </property>
        <property name="font">
         <font>
@@ -816,9 +830,6 @@
        <property name="text">
         <string>123</string>
        </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
        <property name="readOnly">
         <bool>true</bool>
        </property>
@@ -827,18 +838,12 @@
      <item row="3" column="2">
       <widget class="QLineEdit" name="noisef2">
        <property name="enabled">
-        <bool>true</bool>
+        <bool>false</bool>
        </property>
        <property name="font">
         <font>
          <pointsize>12</pointsize>
         </font>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-       <property name="readOnly">
-        <bool>true</bool>
        </property>
       </widget>
      </item>
@@ -860,36 +865,24 @@
      <item row="4" column="1">
       <widget class="QLineEdit" name="sizef1">
        <property name="enabled">
-        <bool>true</bool>
+        <bool>false</bool>
        </property>
        <property name="font">
         <font>
          <pointsize>12</pointsize>
         </font>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-       <property name="readOnly">
-        <bool>true</bool>
        </property>
       </widget>
      </item>
      <item row="4" column="2">
       <widget class="QLineEdit" name="sizef2">
        <property name="enabled">
-        <bool>true</bool>
+        <bool>false</bool>
        </property>
        <property name="font">
         <font>
          <pointsize>12</pointsize>
         </font>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-       <property name="readOnly">
-        <bool>true</bool>
        </property>
       </widget>
      </item>
@@ -1056,15 +1049,8 @@
       <widget class="QLineEdit" name="piximage1">
        <property name="font">
         <font>
-         <weight>75</weight>
-         <bold>true</bold>
+         <pointsize>12</pointsize>
         </font>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-       <property name="readOnly">
-        <bool>true</bool>
        </property>
       </widget>
      </item>
@@ -1072,15 +1058,8 @@
       <widget class="QLineEdit" name="piximage2">
        <property name="font">
         <font>
-         <weight>75</weight>
-         <bold>true</bold>
+         <pointsize>12</pointsize>
         </font>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-       <property name="readOnly">
-        <bool>true</bool>
        </property>
       </widget>
      </item>
@@ -1103,15 +1082,8 @@
       <widget class="QLineEdit" name="pixrequired1">
        <property name="font">
         <font>
-         <weight>75</weight>
-         <bold>true</bold>
+         <pointsize>12</pointsize>
         </font>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-       <property name="readOnly">
-        <bool>true</bool>
        </property>
       </widget>
      </item>
@@ -1119,15 +1091,8 @@
       <widget class="QLineEdit" name="pixrequired2">
        <property name="font">
         <font>
-         <weight>75</weight>
-         <bold>true</bold>
+         <pointsize>12</pointsize>
         </font>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignCenter</set>
-       </property>
-       <property name="readOnly">
-        <bool>true</bool>
        </property>
       </widget>
      </item>
