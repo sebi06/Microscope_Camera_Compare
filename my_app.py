@@ -66,7 +66,7 @@ class MainWindow(QtWidgets.QMainWindow):
                            qe=0.75,
                            pixsize=4.54,
                            binning=1,
-                           cameratype="NORMAL",
+                           cameratype="CCD",
                            emgain=1,
                            readout=6.0,
                            dark=0.005,
@@ -76,11 +76,17 @@ class MainWindow(QtWidgets.QMainWindow):
                            qe=0.65,
                            pixsize=6.45,
                            binning=1,
-                           cameratype="NORMAL",
+                           cameratype="CCD",
                            emgain=1,
                            readout=7.0,
                            dark=0.005,
                            cic=0.0)
+
+        # adapt the noise factor and readout noise
+        self.cam1 = adapt_readout(self.cam1)
+        self.cam1 = adapt_noisefactor(self.cam1)
+        self.cam2 = adapt_readout(self.cam2)
+        self.cam2 = adapt_noisefactor(self.cam2)
 
         # update the noise and size factors
         self.noisef1.setText(str(self.cam1.nf))
@@ -311,6 +317,9 @@ class MainWindow(QtWidgets.QMainWindow):
         # update the plot and redraw
         self.update_plot()
 
+
+    # update the plot
+
     def update_plot(self):
 
         # recalculate the values
@@ -362,29 +371,6 @@ class Camera:
         self.dark = dark
         self.cic = cic
 
-        # adapt the noise factor and readout noise
-        self.adapt_noisefactor()
-        self.adapt_readout()
-
-
-    def adapt_noisefactor(self) -> None:
-
-        # adjust noise factor due to CCD type
-        if self.cameratype == "CCD":
-            # reset noise factor and gain in case of an normal CCD
-            self.nf = 1.0
-            self.emgain = 1
-            self.cic = 0.0
-
-        elif self.cameratype == "EM-CCD":
-            self.nf = 1.41
-
-    def adapt_readout(self) -> None:
-
-        # adapt the readout noise if camera is an CMOS
-        if self.cameratype == "CMOS":
-            self.readout_mod = np.sqrt(self.binning)
-
 
 class Microscope:
     def __init__(self, name: str = "Mic1",
@@ -396,7 +382,6 @@ class Microscope:
         self.objmag = objmag
         self.objna = objna
         self.addmag = addmag
-
 
 
 def calc_values(cam1: type[Camera], cam2: type[Camera], mic1: type[Microscope], mic2: type[Microscope],
@@ -439,7 +424,7 @@ def calc_values(cam1: type[Camera], cam2: type[Camera], mic1: type[Microscope], 
     #cp2["snr"] = (cam2.qe * cp1["phf"] / np.sqrt(cam2.nf**2 * (cam2.qe * cp1["phf"] + cam2.dark**2 + cam2.cic**2) + (cp2["readout_mod"]**2 / cam2.emgain**2))).astype(float)
 
     cp1["snr"] = (cam1.qe * cp1["phf"] / np.sqrt(cam1.nf**2 * (cam1.qe * cp1["phf"] + cam1.dark**2 + cam1.cic**2) + (cam1.readout_mod**2 / cam1.emgain**2))).astype(float)
-    cp2["snr"] = (cam2.qe * cp1["phf"] / np.sqrt(cam2.nf**2 * (cam2.qe * cp1["phf"] + cam2.dark**2 + cam2.cic**2) + (cam1.readout_mod**2 / cam2.emgain**2))).astype(float)
+    cp2["snr"] = (cam2.qe * cp1["phf"] / np.sqrt(cam2.nf**2 * (cam2.qe * cp1["phf"] + cam2.dark**2 + cam2.cic**2) + (cam2.readout_mod**2 / cam2.emgain**2))).astype(float)
 
     # calculate values for photon indicators
     cp2["flux"] = (np.round(cp1["flux"] * cp2["corrf_pixarea"], 0)).astype(int)
@@ -457,6 +442,28 @@ def calc_values(cam1: type[Camera], cam2: type[Camera], mic1: type[Microscope], 
     cp2["phindy"] = np.array([0, cp2["snr_value"], cp2["snr_value"]])
 
     return cp1, cp2
+
+
+def adapt_noisefactor(cam: Camera) -> Camera:
+    # adjust noise factor due to CCD type
+    if cam.cameratype == "CCD":
+        # reset noise factor and gain in case of an normal CCD
+        cam.nf = 1.0
+        cam.emgain = 1
+        cam.cic = 0.0
+
+    elif cameratype == "EM-CCD":
+        cam.nf = 1.41
+
+    return cam
+
+
+def adapt_readout(cam: Camera) -> Camera:
+    # adapt the readout noise if camera is an CMOS
+    if cam.cameratype == "CMOS":
+        cam.readout_mod = np.sqrt(cam.binning)
+
+    return cam
 
 
 def main():
