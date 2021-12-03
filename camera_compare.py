@@ -8,7 +8,7 @@
 #
 #
 # This code probably does not reflect the latest new technologies
-# of microsocpe cameras anymore but is hopefully still useful to compare cameras
+# of microscope cameras anymore but is hopefully still useful to compare cameras
 # and understand the lines of reasoning when choosing the "right" camera
 #
 # Disclaimer: The code is purely experimental. Feel free to
@@ -56,7 +56,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # define default values for objectives and update ui elements
         objmag = 20
-        objna = 0.95
+        objna = 0.7
         addmag = 1.0
 
         # define other default values and update ui elements
@@ -94,10 +94,10 @@ class MainWindow(QtWidgets.QMainWindow):
         camera_types = ["CCD", "EM-CCD", "CMOS"]
 
         # define defaults for camera 1
-        name1 = "506 mono"
+        name1 = "cam1"
         type1 = "CCD"
         gain1 = 1
-        bin1 = 2
+        bin1 = 1
         qe1 = 0.74
         pixsize1 = 4.54
         readout1 = 6.5
@@ -105,15 +105,15 @@ class MainWindow(QtWidgets.QMainWindow):
         cic1 = 0.0
 
         # define defaults for camera 2
-        name2 = "888 Ultra"
+        name2 = "cam2"
         type2 = "EM-CCD"
-        gain2 = 100
+        gain2 = 150
         bin2 = 1
-        qe2 = 0.95
-        pixsize2 = 13.0
+        qe2 = 0.94
+        pixsize2 = 12.0
         readout2 = 130
-        dark2 = 0.00025
-        cic2 = 0.005
+        dark2 = 0.0003
+        cic2 = 0.006
 
         # initialize tow cameras with default values
         self.cam1 = Camera(name=name1,
@@ -274,6 +274,9 @@ class MainWindow(QtWidgets.QMainWindow):
             self.cam1.emgain = 1
             # set the value for the spinbox = 1
             self.emgain1.setValue(1)
+            # set CIC to zero
+            self.cic1.setValue(0.0)
+            self.cam1.cic = 0.0
         elif self.cam1.cameratype == "EM-CCD":
             # enable the spinbox
             self.emgain1.setEnabled(True)
@@ -282,6 +285,8 @@ class MainWindow(QtWidgets.QMainWindow):
             self.emgain2.setDisabled(True)
             self.cam1.emgain = 1
             self.emgain2.setValue(1)
+            self.cic2.setValue(0.0)
+            self.cam2.cic = 0.0
         elif self.cam2.cameratype == "EM-CCD":
             self.emgain2.setEnabled(True)
 
