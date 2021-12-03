@@ -2,7 +2,7 @@
 
 Simple tool to compare two cameras with respect to their detection efficiency and the resulting pixel sizes in the actual image.
 
-![Camera Compare - Screeshot](/images/c)
+![Camera Compare Tool](images/camera_compare1.png)_Camera Compare Tool Version 0.1_
 
 The main purpose of this little tool is:
 
