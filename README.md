@@ -2,6 +2,8 @@
 
 Simple tool to compare two cameras with respect to their detection efficiency and the resulting pixel sizes in the actual image.
 
+![Camera Compare - Screeshot](/images/c)
+
 The main purpose of this little tool is:
 
 * mainly to educate and increase the "understanding" of those values
@@ -29,5 +31,3 @@ The main purpose of this little tool is:
 * **Pixel Size Image**: resulting pixel size in image -> orange if too big for the desired sampling
 * **Pixel Size required**: required pixel size to achieve the desired sampling
 
-![Camera Compare - Screeshot](./images/camera_compare1.png)
- 
