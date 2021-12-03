@@ -1,9 +1,25 @@
+# -*- coding: utf-8 -*-
+
+#################################################################
+# File        : camera_compare.py
+# Version     : 0.0.1
+# Author      : sebi06
+# Date        : 21.10.2021
+#
+#
+# This code probably does not reflect the latest new technologies
+# of microsocpe cameras anymore but is hopefully still useful to compare cameras
+# and understand the lines of reasoning when choosing the "right" camera
+#
+# Disclaimer: The code is purely experimental. Feel free to
+# use it at your own risk.
+#
+#################################################################
+
 from __future__ import annotations
 from PyQt5 import QtWidgets, QtGui, uic
 from PyQt5 import QtCore
-#from pyqtgraph import PlotWidget, plot
-#import pyqtgraph as pg
-import sys  # We need sys so that we can pass argv to QApplication
+import sys
 import os
 import numpy as np
 from typing import List, Dict, Tuple, Optional, Type, Any, Union
@@ -27,16 +43,16 @@ class MainWindow(QtWidgets.QMainWindow):
         self.label_camera2R.setPalette(palg)
 
         # another way to modify the color
-        self.name1.setStyleSheet("""QLineEdit {color: green }""")
-        self.name2.setStyleSheet("""QLineEdit {color: red }""")
-        self.phf1.setStyleSheet("""QSpinBox {color: green }""")
-        self.phf2.setStyleSheet("""QLineEdit {color: red }""")
-        self.addmag1.setStyleSheet("""QDoubleSpinBox {color: green }""")
-        self.addmag2.setStyleSheet("""QDoubleSpinBox {color: red }""")
-        self.objmag1.setStyleSheet("""QDoubleSpinBox {color: green }""")
-        self.objmag2.setStyleSheet("""QDoubleSpinBox {color: red }""")
-        self.objna1.setStyleSheet("""QDoubleSpinBox {color: green }""")
-        self.objna2.setStyleSheet("""QDoubleSpinBox {color: red }""")
+        self.name1.setStyleSheet("""QLineEdit {color: red }""")
+        self.name2.setStyleSheet("""QLineEdit {color: green }""")
+        self.phf1.setStyleSheet("""QSpinBox {color: red }""")
+        self.phf2.setStyleSheet("""QLineEdit {color: green }""")
+        self.addmag1.setStyleSheet("""QDoubleSpinBox {color: red }""")
+        self.addmag2.setStyleSheet("""QDoubleSpinBox {color: green }""")
+        self.objmag1.setStyleSheet("""QDoubleSpinBox {color: red }""")
+        self.objmag2.setStyleSheet("""QDoubleSpinBox {color: green }""")
+        self.objna1.setStyleSheet("""QDoubleSpinBox {color: red }""")
+        self.objna2.setStyleSheet("""QDoubleSpinBox {color: green }""")
 
         # define default values for objectives and update ui elements
         objmag = 20
@@ -99,7 +115,6 @@ class MainWindow(QtWidgets.QMainWindow):
         dark2 = 0.00025
         cic2 = 0.005
 
-
         # initialize tow cameras with default values
         self.cam1 = Camera(name=name1,
                            qe=qe1,
@@ -111,6 +126,7 @@ class MainWindow(QtWidgets.QMainWindow):
                            dark=dark1,
                            cic=cic1)
 
+        # update the UI elements with the choosen defaults
         self.name1.setText(name1)
         self.qe1.setValue(qe1)
         self.type1.setCurrentIndex(camera_types.index(type1))
@@ -130,6 +146,9 @@ class MainWindow(QtWidgets.QMainWindow):
                            readout=readout2,
                            dark=dark2,
                            cic=cic2)
+
+        # check the camera type and enable or disable the gain
+        self.checktype()
 
         self.name2.setText(name2)
         self.qe2.setValue(qe2)
@@ -167,9 +186,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.pixrequired2.setText(str(self.cp2["req_pixsize"]))
 
         # configure plot
-        self.MplWidget.canvas.axes.set_title("Camera SNR Plot")
-        self.MplWidget.canvas.axes.set_xlabel("Photons / Pixel / Frame")
-        self.MplWidget.canvas.axes.set_ylabel("SNR Ratio")
+        self.MplWidget.canvas.axes.set_title("Camera SNR Plot", size=18, weight="bold")
+        self.MplWidget.canvas.axes.set_xlabel("Photons / Pixel / Frame", size=14, weight="bold")
+        self.MplWidget.canvas.axes.set_ylabel("SNR Ratio", size=14, weight="bold")
         self.MplWidget.canvas.axes.grid(True, linestyle="--")
         self.MplWidget.canvas.axes.set_xlim(0, 200)
         self.MplWidget.canvas.axes.set_ylim(0, 10)
@@ -244,11 +263,34 @@ class MainWindow(QtWidgets.QMainWindow):
         # connect photon flux  value
         self.phf1.valueChanged.connect(self.change_flux)
 
+    # check camera type and selected gain
+    def checktype(self) -> None:
+
+        # disable EM gain if CMOS or CCD
+        if self.cam1.cameratype == "CMOS" or self.cam1.cameratype == "CCD":
+            # disable the spinbox
+            self.emgain1.setDisabled(True)
+            # set emgain value for cam1 = 1
+            self.cam1.emgain = 1
+            # set the value for the spinbox = 1
+            self.emgain1.setValue(1)
+        elif self.cam1.cameratype == "EM-CCD":
+            # enable the spinbox
+            self.emgain1.setEnabled(True)
+
+        if self.cam2.cameratype == "CMOS" or self.cam2.cameratype == "CCD":
+            self.emgain2.setDisabled(True)
+            self.cam1.emgain = 1
+            self.emgain2.setValue(1)
+        elif self.cam2.cameratype == "EM-CCD":
+            self.emgain2.setEnabled(True)
+
 
     # modify plot
 
     def change_scale(self: QtWidgets.QMainWindow) -> None:
 
+        # change the range for both axis
         self.MplWidget.canvas.axes.set_xlim(self.xscale_min.value(), self.xscale_max.value())
         self.MplWidget.canvas.axes.set_ylim(self.yscale_min.value(), self.yscale_max.value())
 
@@ -324,6 +366,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.update_plot()
 
     def change_gain(self: QtWidgets.QMainWindow) -> None:
+
         # change the camera gain
         self.cam1.emgain = self.emgain1.value()
         self.cam2.emgain = self.emgain2.value()
@@ -342,6 +385,8 @@ class MainWindow(QtWidgets.QMainWindow):
         if self.cam2.cameratype == "CCD" or self.cam2.cameratype == "CMOS":
             self.emgain2.setValue(1)
 
+        # the the camera type and adjust UI
+        self.checktype()
 
         # adapt the noise factor and readout noise
         self.cam1 = adapt_noise_readout(self.cam1)
@@ -440,18 +485,18 @@ class MainWindow(QtWidgets.QMainWindow):
         self.pixrequired1.setText(str(self.cp1["req_pixsize"]))
         self.pixrequired2.setText(str(self.cp2["req_pixsize"]))
 
-        # setting background color to the line edit widget
+        # setting background color ofr the pixelsize in the UI
         if self.cp1["piximage"] > self.cp1["req_pixsize"]:
+            # if the pixel size is to big set it to orange
             self.piximage1.setStyleSheet("""QLineEdit { background-color: orange;}""")
         else:
+            # if the pixel size is to big set it to gree
             self.piximage1.setStyleSheet("""QLineEdit { background-color: lightgreen;}""")
 
         if self.cp2["piximage"] > self.cp2["req_pixsize"]:
             self.piximage2.setStyleSheet("""QLineEdit { background-color: orange;}""")
         else:
             self.piximage2.setStyleSheet("""QLineEdit { background-color: lightgreen;}""")
-
-
 
         # update the whole plot
         self.MplWidget.canvas.draw()
@@ -469,9 +514,26 @@ class Camera:
                  noisefactor: float = 1.0,
                  dark: float = 0.005,
                  cic: float = 0.0) -> None:
+        """
+        :param name: name of the camera
+        :param qe: quantum efficiency
+        :param pixsize: physical pixel size of camera
+        :param binning: binning
+        :param cameratype: type of camera - CCD, CMOS or EM-CCD
+        :param emgain: EM-Gain, will be set to 1 for CCD or CMOS
+        :param readout: readout noise
+        :param noisefactor: noisee factor for EM-CCD
+        :param dark: dark current
+        :param cic: clock-induced charge
+        """
 
-        # allowed types are: "CCD" or "CMOS" or "EM-CCD"
 
+        # allowed types are:
+        if not cameratype in ["CCD", "CMOS", "EM-CCD"]:
+            cameratype = "CCD"
+            print("Specified CameraType is not valid. Use CCD as fallback")
+
+        # store all the parameters
         self.qe = qe
         self.pixsize = pixsize
         self.binning = binning
@@ -489,6 +551,12 @@ class Microscope:
                  objmag: float = 20.0,
                  objna: float = 0.95,
                  addmag: float = 1.0) -> None:
+        """
+        :param name: name of objective, eg. the respective "arm" of the detection system
+        :param objmag: magnificaton factor
+        :param objna: numerical aperture of the objective
+        :param addmag: additional magnification infront of the camera (C-mount etc.)
+        """
 
         self.mic1 = name
         self.objmag = objmag
@@ -517,24 +585,10 @@ def calc_values(cam1: type[Camera], cam2: type[Camera], mic1: type[Microscope], 
     cp2["corrf_pixarea"] = 1.00
     cp2["corrf_pixarea"] = float(np.round((cp2["piximage"] **2) / (cp1["piximage"] **2), 2))
 
-    # adapt the readout noise if camera is an CMOS
-    #if cam1.cameratype == "CMOS":
-    #    cp1["readout_mod"] = np.sqrt(cam1.binning)
-    #else:
-    #    cp1["readout_mod"] = cam1.readout
-    #if cam2.cameratype == "CMOS":
-    #    cp2["readout_mod"] = np.sqrt(cam2.binning)
-    #else:
-    #    cp2["readout_mod"] = cam2.readout
-
     # create ph vector containing the number of detected photons and use for both cameras
-    cp1["phf"] = np.arange(0, 300, 1, dtype=np.int16)
-    #cp2["phf"] = np.arange(0, 400, 1, dtype=np.int16)
+    cp1["phf"] = np.arange(0, 500, 1, dtype=np.int16)
 
     # calculation of SNR including CIC - Clock Induced Charge
-    #cp1["snr"] = (cam1.qe * cp1["phf"] / np.sqrt(cam1.nf**2 * (cam1.qe * cp1["phf"] + cam1.dark**2 + cam1.cic**2) + (cp1["readout_mod"]**2 / cam1.emgain**2))).astype(float)
-    #cp2["snr"] = (cam2.qe * cp1["phf"] / np.sqrt(cam2.nf**2 * (cam2.qe * cp1["phf"] + cam2.dark**2 + cam2.cic**2) + (cp2["readout_mod"]**2 / cam2.emgain**2))).astype(float)
-
     cp1["snr"] = (cam1.qe * cp1["phf"] / np.sqrt(cam1.nf**2 * (cam1.qe * cp1["phf"] + cam1.dark**2 + cam1.cic**2) + (cam1.readout_mod**2 / cam1.emgain**2))).astype(float)
     cp2["snr"] = (cam2.qe * cp1["phf"] / np.sqrt(cam2.nf**2 * (cam2.qe * cp1["phf"] + cam2.dark**2 + cam2.cic**2) + (cam2.readout_mod**2 / cam2.emgain**2))).astype(float)
 
@@ -542,8 +596,6 @@ def calc_values(cam1: type[Camera], cam2: type[Camera], mic1: type[Microscope], 
     cp2["flux"] = (np.round(cp1["flux"] * cp2["corrf_pixarea"], 0)).astype(int)
 
     #  calculate explicit SNR values
-    #cp1["snr_value"] = ((cam1.qe * cp1["flux"]) / np.sqrt(cam1.nf**2 * (cam1.qe * cp1["flux"] + cam1.dark**2 + cam1.cic**2) + (cp1["readout_mod"]**2 / cam1.emgain**2))).astype(float)
-    #cp2["snr_value"] = ((cam2.qe * cp2["flux"]) / np.sqrt(cam2.nf**2 * (cam2.qe * cp2["flux"] + cam2.dark**2 + cam2.cic**2) + (cp2["readout_mod"]**2 / cam2.emgain**2))).astype(float)
     cp1["snr_value"] = ((cam1.qe * cp1["flux"]) / np.sqrt(cam1.nf**2 * (cam1.qe * cp1["flux"] + cam1.dark**2 + cam1.cic**2) + (cam1.readout_mod**2 / cam1.emgain**2))).astype(float)
     cp2["snr_value"] = ((cam2.qe * cp2["flux"]) / np.sqrt(cam2.nf**2 * (cam2.qe * cp2["flux"] + cam2.dark**2 + cam2.cic**2) + (cam2.readout_mod**2 / cam2.emgain**2))).astype(float)
 
@@ -557,6 +609,7 @@ def calc_values(cam1: type[Camera], cam2: type[Camera], mic1: type[Microscope], 
 
 
 def adapt_noise_readout(cam: Camera) -> Camera:
+
     # adjust noise factor due to CCD type
     if cam.cameratype == "CCD":
         # reset noise factor and gain in case of an normal CCD
@@ -581,6 +634,7 @@ def main():
     main = MainWindow()
     main.show()
     sys.exit(app.exec_())
+
 
 if __name__ == '__main__':
     main()

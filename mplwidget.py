@@ -1,6 +1,16 @@
-# ------------------------------------------------------
-# -------------------- mplwidget.py --------------------
-# ------------------------------------------------------
+# -*- coding: utf-8 -*-
+
+#################################################################
+# File        : mplwidget.py
+# Version     : 0.0.1
+# Author      : sebi06
+# Date        : 21.10.2021
+#
+# Disclaimer: The code is purely experimental. Feel free to
+# use it at your own risk.
+#
+#################################################################
+
 from PyQt5.QtWidgets import *
 
 from matplotlib.backends.backend_qt5agg import FigureCanvas
