@@ -1,8 +1,10 @@
 # Camera Compare
 
+### What it does
+
 Simple tool to compare two cameras with respect to their detection efficiency and the resulting pixel sizes in the actual image.
 
-![Camera Compare Tool](images/camera_compare1.png)_Camera Compare Tool Version 0.1_
+![Camera Compare Tool](images/camera_compare1.png)
 
 The main purpose of this little tool is:
 
@@ -11,7 +13,7 @@ The main purpose of this little tool is:
 
 **Disclaimer: The code is purely experimental. Feel free to use it at your own risk. Chosen defaults are just "typical" values.**
 
-## Explanations:
+### Explanations
 
 * **QE**: Quantum Efficiency of the detector
 * **Pixel Size**: physical pixel size of the camera
@@ -24,7 +26,7 @@ The main purpose of this little tool is:
 * **Photon Flux**: number pf photons that get detected by a pixel on the chip
 * **Addition Magnification**: USed to adapt the image pixel size to the desired sampling
 * **ReadNoise Factor**: Uncertainty inherent to the signal multiplying process of EM-CCD = 1.41
-* **PixelArea Factor**: Ratio of the physical pixel area of both detector. A factor of 2 means 4x the numver of detected photons per pixel! 
+* **PixelArea Factor**: Ratio of the physical pixel area of both detector. A factor of 2 means 4x the number of detected photons per pixel (!)
 * **Nyquist Sampling**: desired sampling rate
 * **Emission wavelength**: main emission wavelength of the detected signal
 * **Objective magnification and NA**: parameters of the used objective(s)
