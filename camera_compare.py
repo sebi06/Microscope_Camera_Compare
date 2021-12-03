@@ -24,6 +24,7 @@ import os
 import numpy as np
 from typing import List, Dict, Tuple, Optional, Type, Any, Union
 
+
 class MainWindow(QtWidgets.QMainWindow):
 
     def __init__(self, *args, **kwargs):
@@ -290,7 +291,6 @@ class MainWindow(QtWidgets.QMainWindow):
         elif self.cam2.cameratype == "EM-CCD":
             self.emgain2.setEnabled(True)
 
-
     # modify plot
 
     def change_scale(self: QtWidgets.QMainWindow) -> None:
@@ -451,12 +451,11 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def change_flux(self: QtWidgets.QMainWindow) -> None:
 
-            # change the readout noise
-            self.phf1_value = self.phf1.value()
+        # change the readout noise
+        self.phf1_value = self.phf1.value()
 
-            # update the plot and redraw
-            self.update_plot()
-
+        # update the plot and redraw
+        self.update_plot()
 
     # update the plot and UI
 
@@ -527,13 +526,12 @@ class Camera:
         :param cameratype: type of camera - CCD, CMOS or EM-CCD
         :param emgain: EM-Gain, will be set to 1 for CCD or CMOS
         :param readout: readout noise
-        :param noisefactor: noisee factor for EM-CCD
+        :param noisefactor: noise factor for EM-CCD
         :param dark: dark current
         :param cic: clock-induced charge
         """
 
-
-        # allowed types are:
+        # allowed types are
         if not cameratype in ["CCD", "CMOS", "EM-CCD"]:
             cameratype = "CCD"
             print("Specified CameraType is not valid. Use CCD as fallback")
@@ -588,21 +586,25 @@ def calc_values(cam1: type[Camera], cam2: type[Camera], mic1: type[Microscope], 
 
     # correction factor for pixel area
     cp2["corrf_pixarea"] = 1.00
-    cp2["corrf_pixarea"] = float(np.round((cp2["piximage"] **2) / (cp1["piximage"] **2), 2))
+    cp2["corrf_pixarea"] = float(np.round((cp2["piximage"] ** 2) / (cp1["piximage"] ** 2), 2))
 
     # create ph vector containing the number of detected photons and use for both cameras
     cp1["phf"] = np.arange(0, 500, 1, dtype=np.int16)
 
     # calculation of SNR including CIC - Clock Induced Charge
-    cp1["snr"] = (cam1.qe * cp1["phf"] / np.sqrt(cam1.nf**2 * (cam1.qe * cp1["phf"] + cam1.dark**2 + cam1.cic**2) + (cam1.readout_mod**2 / cam1.emgain**2))).astype(float)
-    cp2["snr"] = (cam2.qe * cp1["phf"] / np.sqrt(cam2.nf**2 * (cam2.qe * cp1["phf"] + cam2.dark**2 + cam2.cic**2) + (cam2.readout_mod**2 / cam2.emgain**2))).astype(float)
+    cp1["snr"] = (cam1.qe * cp1["phf"] / np.sqrt(cam1.nf**2 * (cam1.qe * cp1["phf"] + cam1.dark **
+                  2 + cam1.cic**2) + (cam1.readout_mod**2 / cam1.emgain**2))).astype(float)
+    cp2["snr"] = (cam2.qe * cp1["phf"] / np.sqrt(cam2.nf**2 * (cam2.qe * cp1["phf"] + cam2.dark **
+                  2 + cam2.cic**2) + (cam2.readout_mod**2 / cam2.emgain**2))).astype(float)
 
     # calculate values for photon indicators
     cp2["flux"] = (np.round(cp1["flux"] * cp2["corrf_pixarea"], 0)).astype(int)
 
     #  calculate explicit SNR values
-    cp1["snr_value"] = ((cam1.qe * cp1["flux"]) / np.sqrt(cam1.nf**2 * (cam1.qe * cp1["flux"] + cam1.dark**2 + cam1.cic**2) + (cam1.readout_mod**2 / cam1.emgain**2))).astype(float)
-    cp2["snr_value"] = ((cam2.qe * cp2["flux"]) / np.sqrt(cam2.nf**2 * (cam2.qe * cp2["flux"] + cam2.dark**2 + cam2.cic**2) + (cam2.readout_mod**2 / cam2.emgain**2))).astype(float)
+    cp1["snr_value"] = ((cam1.qe * cp1["flux"]) / np.sqrt(cam1.nf**2 * (cam1.qe * cp1["flux"] + cam1.dark **
+                        2 + cam1.cic**2) + (cam1.readout_mod**2 / cam1.emgain**2))).astype(float)
+    cp2["snr_value"] = ((cam2.qe * cp2["flux"]) / np.sqrt(cam2.nf**2 * (cam2.qe * cp2["flux"] + cam2.dark **
+                        2 + cam2.cic**2) + (cam2.readout_mod**2 / cam2.emgain**2))).astype(float)
 
     cp1["phindx"] = np.array([cp1["flux"], cp1["flux"], 0])
     cp1["phindy"] = np.array([0, cp1["snr_value"], cp1["snr_value"]])
