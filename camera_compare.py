@@ -21,6 +21,10 @@ import sys
 import os
 import numpy as np
 from typing import List, Dict, Tuple, Optional, Type, Any, Union
+from logging_tools import set_logging
+
+
+logger = set_logging()
 
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -29,7 +33,7 @@ class MainWindow(QtWidgets.QMainWindow):
         super(MainWindow, self).__init__(*args, **kwargs)
 
         # Load the UI Page
-        uic.loadUi("mainwindow.ui", self)
+        uic.loadUi("mainwindow_new.ui", self)
 
         # on eway to modify the color
         palr = self.label_camera1L.palette()
@@ -60,7 +64,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # define other default values and update ui elements
         emwl = 520
-        phf = 50
+        phf = 30
         sampling = 2.0
 
         # store them
@@ -88,25 +92,27 @@ class MainWindow(QtWidgets.QMainWindow):
 
         # define defaults for camera 1
         name1 = "cam1"
-        type1 = "CCD"
+        type1 = "CMOS"
         gain1 = 1
         bin1 = 1
-        qe1 = 0.74
-        pixsize1 = 4.54
-        readout1 = 6.5
-        dark1 = 0.06
+        qe1 = 0.72
+        pixsize1 = 3.45
+        readout1 = 2.2
+        readout1_mod = readout1
+        dark1 = 0.5
         cic1 = 0.0
 
         # define defaults for camera 2
         name2 = "cam2"
-        type2 = "EM-CCD"
-        gain2 = 150
+        type2 = "CMOS"
+        gain2 = 1
         bin2 = 1
-        qe2 = 0.94
-        pixsize2 = 12.0
-        readout2 = 130
-        dark2 = 0.0003
-        cic2 = 0.006
+        qe2 = 0.82
+        pixsize2 = 6.5
+        readout2 = 2.0
+        readout2_mod = readout2
+        dark2 = 0.6
+        cic2 = 0.000
 
         # initialize tow cameras with default values
         self.cam1 = Camera(
@@ -117,17 +123,19 @@ class MainWindow(QtWidgets.QMainWindow):
             cameratype=type1,
             emgain=gain1,
             readout=readout1,
+            readout_mod=readout1_mod,
             dark=dark1,
             cic=cic1,
         )
 
-        # update the UI elements with the choosen defaults
+        # update the UI elements with the chosen defaults
         self.name1.setText(name1)
         self.qe1.setValue(qe1)
         self.type1.setCurrentIndex(camera_types.index(type1))
         self.bin1.setCurrentIndex(bin1 - 1)
         self.pixsize1.setValue(pixsize1)
         self.readnoise1.setValue(readout1)
+        self.readnoise1_mod.setText(str(readout1_mod))
         self.emgain1.setValue(gain1)
         self.dark1.setValue(dark1)
         self.cic1.setValue(cic1)
@@ -140,6 +148,7 @@ class MainWindow(QtWidgets.QMainWindow):
             cameratype=type2,
             emgain=gain2,
             readout=readout2,
+            readout_mod=readout1_mod,
             dark=dark2,
             cic=cic2,
         )
@@ -153,6 +162,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.bin2.setCurrentIndex(bin2 - 1)
         self.pixsize2.setValue(pixsize2)
         self.readnoise2.setValue(readout2)
+        self.readnoise2_mod.setText(str(readout2_mod))
         self.emgain2.setValue(gain2)
         self.dark2.setValue(dark2)
         self.cic2.setValue(cic2)
@@ -194,7 +204,7 @@ class MainWindow(QtWidgets.QMainWindow):
         )
         self.MplWidget.canvas.axes.set_ylabel("SNR Ratio", size=14, weight="bold")
         self.MplWidget.canvas.axes.grid(True, linestyle="--")
-        self.MplWidget.canvas.axes.set_xlim(0, 200)
+        self.MplWidget.canvas.axes.set_xlim(0, 150)
         self.MplWidget.canvas.axes.set_ylim(0, 10)
 
         # plot SNR curves (returns a tuple of line objects, thus the comma)
@@ -352,6 +362,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.noisef1.setText(str(self.cam1.nf))
         self.noisef2.setText(str(self.cam2.nf))
 
+        # update the modified readout
+        self.readnoise1_mod.setText(str(self.cam1.readout_mod))
+        self.readnoise2_mod.setText(str(self.cam2.readout_mod))
+
         # update the plot and redraw
         self.update_plot()
 
@@ -470,7 +484,7 @@ class MainWindow(QtWidgets.QMainWindow):
         if self.cam1.cameratype == "CCD" or self.cam1.cameratype == "CMOS":
             self.emgain1.setValue(1)
         if self.cam2.cameratype == "CCD" or self.cam2.cameratype == "CMOS":
-            self.emgain2.setValue(1)
+            self.emgain2.setValue(2)
 
         # the the camera type and adjust UI
         self.checktype()
@@ -480,6 +494,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.cam2 = adapt_noise_readout(self.cam2)
         self.noisef1.setText(str(self.cam1.nf))
         self.noisef2.setText(str(self.cam2.nf))
+
+        # update the modified readout
+        self.readnoise1_mod.setText(str(self.cam1.readout_mod))
+        self.readnoise2_mod.setText(str(self.cam2.readout_mod))
 
         # update the plot and redraw
         self.update_plot()
@@ -650,6 +668,7 @@ class Camera:
         cameratype: str = "CCD",
         emgain: int = 1,
         readout: float = 1.0,
+        readout_mod: float = 1.0,
         noisefactor: float = 1.0,
         dark: float = 0.005,
         cic: float = 0.0,
@@ -684,7 +703,7 @@ class Camera:
         self.cameratype = cameratype
         self.emgain = emgain
         self.readout = readout
-        self.readout_mod = readout
+        self.readout_mod = readout_mod
         self.nf = noisefactor
         self.dark = dark
         self.cic = cic
@@ -845,7 +864,8 @@ def adapt_noise_readout(cam: Camera) -> Camera:
 
     # adapt the readout noise if camera is an CMOS
     if cam.cameratype == "CMOS":
-        cam.readout_mod = cam.readout * np.sqrt(cam.binning)
+        cam.nf = 1.0
+        cam.readout_mod = np.round(cam.readout * np.sqrt(cam.binning), 2)
 
     return cam
 
